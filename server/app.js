@@ -1,11 +1,15 @@
 const express = require('express');
 const next = require('next');
+
 const mongoose = require('mongoose');
+
+const session = require('express-session');
+const mongoSessionStore = require('connect-mongo');
 
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
-const { MONGO_URL } = process.env;
+const MONGO_URL = process.env.MONGO_URL_TEST;
 
 const options = {
   useNewUrlParser: true,
@@ -23,8 +27,29 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = express();
 
-  server.get('/', (req, res) => {
+  const MongoStore = mongoSessionStore(session);
+
+  const sess = {
+    name: 'project-documentation',
+    secret: process.env.APP_SECRET,
+    store: new MongoStore({
+      mongooseConnection: mongoose.connection,
+      ttl: 14 * 24 * 60 * 60, // save session 14 days
+    }),
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      maxAge: 14 * 24 * 60 * 60 * 1000,
+    },
+  };
+
+  server.use(session(sess));
+
+  server.get('/', async (req, res) => {
     const user = { email: 'team@builderbook.org' };
+
+    req.session.foo = 'bar';
     app.render(req, res, '/', { user });
   });
 
