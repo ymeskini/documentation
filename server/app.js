@@ -1,10 +1,10 @@
 const express = require('express');
 const next = require('next');
-
 const mongoose = require('mongoose');
 
 const session = require('express-session');
 const mongoSessionStore = require('connect-mongo');
+const auth = require('./google');
 
 require('dotenv').config();
 
@@ -16,6 +16,7 @@ const options = {
   useCreateIndex: true,
   useFindAndModify: false,
 };
+
 mongoose.connect(MONGO_URL, options);
 
 const port = process.env.PORT || 8000;
@@ -45,13 +46,7 @@ app.prepare().then(() => {
   };
 
   server.use(session(sess));
-
-  server.get('/', async (req, res) => {
-    const user = { email: 'team@builderbook.org' };
-
-    req.session.foo = 'bar';
-    app.render(req, res, '/', { user });
-  });
+  auth({ server, ROOT_URL });
 
   server.get('*', (req, res) => handle(req, res));
 
