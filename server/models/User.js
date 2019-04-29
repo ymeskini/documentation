@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
-const slugify = require('../../utils/slugify');
+
+const generateSlug = require('../../utils/slugify');
+const sendEmail = require('../aws');
+const { getEmailTemplate } = require('./EmailTemplate');
+const logger = require('../logs');
 
 const { Schema } = mongoose;
 
@@ -74,7 +78,7 @@ class UserClass {
       return user;
     }
 
-    const slug = await slugify(this, displayName);
+    const slug = await generateSlug(this, displayName);
     const userCount = await this.find().countDocuments();
 
     const newUser = await this.create({
@@ -87,6 +91,21 @@ class UserClass {
       slug,
       isAdmin: userCount === 0,
     });
+
+    const template = await getEmailTemplate('welcome', {
+      userName: displayName,
+    });
+
+    try {
+      await sendEmail({
+        from: `Youssef from SmartSailors <${process.env.EMAIL_SUPPORT_FROM_ADDRESS}>`,
+        to: [email],
+        subject: template.subject,
+        body: template.message,
+      });
+    } catch (err) {
+      logger.error('Email sending error:', err);
+    }
 
     return _.pick(newUser, UserClass.publicFields());
   }

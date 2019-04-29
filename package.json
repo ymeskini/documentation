@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint components pages lib server",
-    "dev": "nodemon server/app.js --watch server"
+    "dev": "nodemon server/app.js --watch server",
+    "test": "jest"
   },
   "devDependencies": {
     "babel-eslint": "10.0.1",
@@ -18,13 +19,16 @@
     "eslint-plugin-jsx-a11y": "6.2.1",
     "eslint-plugin-prettier": "3.0.1",
     "eslint-plugin-react": "7.12.4",
+    "jest": "24.7.1",
     "nodemon": "1.18.11",
     "prettier": "1.17.0"
   },
   "dependencies": {
     "@material-ui/core": "3.9.3",
+    "aws-sdk": "2.441.0",
     "connect-mongo": "2.0.3",
     "dotenv": "7.0.0",
+    "email-addresses": "3.0.3",
     "express": "4.16.4",
     "express-session": "1.16.1",
     "googleapis": "39.2.0",
@@ -37,6 +41,7 @@
     "prop-types": "15.7.2",
     "react": "16.8.6",
     "react-dom": "16.8.6",
-    "react-jss": "8.6.1"
+    "react-jss": "8.6.1",
+    "winston": "^3.2.1"
   }
 }
