@@ -12,8 +12,3 @@ node_modules/
 .coverage
 .env
 .next
-
-yarn-error.log
-.directory
-*.code-workspace
-package-lock.json

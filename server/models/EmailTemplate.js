@@ -26,21 +26,23 @@ function insertTemplates() {
   const templates = [
     {
       name: 'welcome',
-      subject: 'Welcome to my website',
+      subject: 'Welcome to builderbook.org',
       message: `<%= userName %>,
         <p>
-          Thanks for signing up!
+          At Builder Book, we are excited to help you build useful, production-ready web apps from scratch.
         </p>
         <p>
-          In my books, I teach you how to build complete, production-ready web apps from scratch.
+          See list of available books here.
         </p>
-        Youssef Meskini
+
+        Kelly & Timur,
+        Team BB
       `,
     },
   ];
 
   templates.forEach(async (template) => {
-    if ((await EmailTemplate.find({ name: template.name }).count()) > 0) {
+    if ((await EmailTemplate.find({ name: template.name }).countDocuments()) > 0) {
       return;
     }
 
@@ -55,7 +57,9 @@ insertTemplates();
 async function getEmailTemplate(name, params) {
   const source = await EmailTemplate.findOne({ name });
   if (!source) {
-    throw new Error('No EmailTemplates found.');
+    throw new Error(`No EmailTemplates found.
+      Please check that at least one is generated at server startup,
+      restart your server and try again.`);
   }
 
   return {

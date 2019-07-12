@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import Head from 'next/head';
 
 import withAuth from '../lib/withAuth';
-import withLayout from '../lib/withLayout';
 
+// eslint-disable-next-line react/prefer-stateless-function
 class Index extends React.Component {
   static propTypes = {
     user: PropTypes.shape({
@@ -22,12 +22,12 @@ class Index extends React.Component {
     return (
       <div style={{ padding: '10px 45px' }}>
         <Head>
-          <title>Dashboard</title>
+          <title>Settings</title>
           <meta name="description" content="List of purchased books." />
         </Head>
-        <p> Dashboard </p>
+        <p>List of purchased books</p>
         <p>
-          Email:
+          Email:&nbsp;
           {user.email}
         </p>
       </div>
@@ -35,4 +35,4 @@ class Index extends React.Component {
   }
 }
 
-export default withAuth(withLayout(Index));
+export default withAuth(Index);

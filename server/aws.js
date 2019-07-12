@@ -8,6 +8,7 @@ function sendEmail(options) {
   });
 
   const ses = new aws.SES({ apiVersion: 'latest' });
+
   return new Promise((resolve, reject) => {
     ses.sendEmail(
       {

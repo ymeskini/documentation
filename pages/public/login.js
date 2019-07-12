@@ -1,9 +1,8 @@
 import Head from 'next/head';
 import Button from '@material-ui/core/Button';
 
-import withAuth from '../lib/withAuth';
-import withLayout from '../lib/withLayout';
-import { styleLoginButton } from '../components/SharedStyles';
+import withAuth from '../../lib/withAuth';
+import { styleLoginButton } from '../../components/SharedStyles';
 
 const Login = () => (
   <div style={{ textAlign: 'center', margin: '0 20px' }}>
@@ -26,4 +25,4 @@ const Login = () => (
   </div>
 );
 
-export default withAuth(withLayout(Login), { logoutRequired: true });
+export default withAuth(Login, { logoutRequired: true });

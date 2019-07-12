@@ -1,30 +1,16 @@
+import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
-import JssProvider from 'react-jss/lib/JssProvider';
-import getContext from '../lib/context';
+import { ServerStyleSheets } from '@material-ui/styles';
 
-export default class MyDocument extends Document {
+class MyDocument extends Document {
   render() {
     return (
       <html lang="en">
-        {/*
-              1. metadata
-
-              2. static resources (from CDN)
-
-              3. global styles
-          */}
         <Head>
           <meta charSet="utf-8" />
-          {/* tells browser that content is UTF-8 encoded */}
-
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          {/* sets page width to screen width, sets initial zoom */}
-
           <meta name="google" content="notranslate" />
-          {/* tell google to not show translate modals */}
-
           <meta name="theme-color" content="#1976D2" />
-          {/* specifies color of browser on mobile device */}
 
           <link
             rel="shortcut icon"
@@ -40,6 +26,7 @@ export default class MyDocument extends Document {
             href="https://storage.googleapis.com/builderbook/nprogress.min.css"
           />
           <link rel="stylesheet" href="https://storage.googleapis.com/builderbook/vs.min.css" />
+
           <style>
             {`
               a, a:focus {
@@ -67,15 +54,12 @@ export default class MyDocument extends Document {
               }
               code {
                 font-size: 14px;
-                background: #FFF;
-                padding: 3px 5px;
               }
             `}
           </style>
         </Head>
         <body
           style={{
-            /* styles for body */
             font: '16px Muli',
             color: '#222',
             margin: '0px auto',
@@ -92,29 +76,50 @@ export default class MyDocument extends Document {
   }
 }
 
-MyDocument.getInitialProps = ({ renderPage }) => {
-  const pageContext = getContext();
+MyDocument.getInitialProps = async (ctx) => {
+  // Resolution order
+  //
+  // On the server:
+  // 1. app.getInitialProps
+  // 2. page.getInitialProps
+  // 3. document.getInitialProps
+  // 4. app.render
+  // 5. page.render
+  // 6. document.render
+  //
+  // On the server with error:
+  // 1. document.getInitialProps
+  // 2. app.render
+  // 3. page.render
+  // 4. document.render
+  //
+  // On the client
+  // 1. app.getInitialProps
+  // 2. page.getInitialProps
+  // 3. app.render
+  // 4. page.render
 
-  const page = renderPage((Component) => (props) => (
-    <JssProvider
-      registry={pageContext.sheetsRegistry}
-      generateClassName={pageContext.generateClassName}
-    >
-      <Component pageContext={pageContext} {...props} />
-    </JssProvider>
-  ));
+  // Render app and page and get the context of the page with collected side effects.
+  const sheets = new ServerStyleSheets();
+  const originalRenderPage = ctx.renderPage;
+
+  ctx.renderPage = () =>
+    originalRenderPage({
+      enhanceApp: (App) => (props) => sheets.collect(<App {...props} />),
+    });
+
+  const initialProps = await Document.getInitialProps(ctx);
 
   return {
-    ...page,
-    pageContext,
+    ...initialProps,
+    // Styles fragment is rendered after the app and page rendering finish.
     styles: (
-      <style
-        id="jss-server-side"
-        // eslint-disable-next-line
-        dangerouslySetInnerHTML={{
-          __html: pageContext.sheetsRegistry.toString(),
-        }}
-      />
+      <React.Fragment>
+        {initialProps.styles}
+        {sheets.getStyleElement()}
+      </React.Fragment>
     ),
   };
 };
+
+export default MyDocument;

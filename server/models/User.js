@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
-const generateSlug = require('../../utils/slugify');
+const generateSlug = require('../utils/slugify');
 const sendEmail = require('../aws');
 const { getEmailTemplate } = require('./EmailTemplate');
 const logger = require('../logs');
@@ -98,7 +98,7 @@ class UserClass {
 
     try {
       await sendEmail({
-        from: `Youssef from SmartSailors <${process.env.EMAIL_SUPPORT_FROM_ADDRESS}>`,
+        from: `Kelly from Builder Book <${process.env.EMAIL_SUPPORT_FROM_ADDRESS}>`,
         to: [email],
         subject: template.subject,
         body: template.message,

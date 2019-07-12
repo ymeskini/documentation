@@ -9,6 +9,7 @@ import MenuDrop from './MenuDrop';
 
 import { styleToolbar } from './SharedStyles';
 
+
 const optionsMenu = [
   {
     text: 'Got question?',
@@ -39,7 +40,7 @@ function Header({ user }) {
                 <Avatar
                   src="https://storage.googleapis.com/builderbook/logo.svg"
                   alt="Builder Book logo"
-                  style={{ margin: '0px auto 0px 20px' }}
+                  style={{ margin: '0px auto 0px 20px', cursor: 'pointer' }}
                 />
               </Link>
             )}
@@ -52,7 +53,7 @@ function Header({ user }) {
                 ) : null}
               </div>
             ) : (
-              <Link prefetch href="/login">
+              <Link prefetch href="/public/login" as="/login">
                 <a style={{ margin: '0px 20px 0px auto' }}>Log in</a>
               </Link>
             )}
@@ -65,8 +66,8 @@ function Header({ user }) {
 
 Header.propTypes = {
   user: PropTypes.shape({
-    avatarUrl: PropTypes.string,
     displayName: PropTypes.string,
+    email: PropTypes.string.isRequired,
   }),
 };
 

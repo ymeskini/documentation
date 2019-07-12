@@ -1,4 +1,4 @@
-const generateSlug = require('./slugify');
+const generateSlug = require('../../../server/utils/slugify');
 
 const MockUser = {
   slugs: ['john-jonhson-jr', 'john-jonhson-jr-1', 'john'],
