@@ -1,11 +1,24 @@
+/* eslint-disable react/no-danger */
 import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/styles';
+import htmlescape from 'htmlescape';
+
+const { StripePublishableKey } = process.env;
+// console.log(StripePublishableKey);
+
+const env = { StripePublishableKey };
+// console.log(env);
 
 class MyDocument extends Document {
   render() {
     return (
-      <html lang="en">
+      <html
+        lang="en"
+        style={{
+          height: '100%',
+        }}
+      >
         <Head>
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -51,9 +64,11 @@ class MyDocument extends Document {
                 background:#FFF;
                 color: #000;
                 border: 1px solid #ddd;
+                font-size: 14px;
               }
               code {
                 font-size: 14px;
+                background: #FFF;
               }
             `}
           </style>
@@ -66,9 +81,12 @@ class MyDocument extends Document {
             fontWeight: '300',
             lineHeight: '1.5em',
             backgroundColor: '#F7F9FC',
+            minHeight: '100%',
           }}
         >
           <Main />
+          {/* eslint-disable-next-line react/no-danger */}
+          <script dangerouslySetInnerHTML={{ __html: `__ENV__ = ${htmlescape(env)}` }} />
           <NextScript />
         </body>
       </html>

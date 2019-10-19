@@ -59,6 +59,13 @@ function auth({ ROOT_URL, server }) {
       scope: ['profile', 'email'],
       prompt: 'select_account',
     }),
+    (req) => {
+      if (req.query && req.query.redirectUrl && req.query.redirectUrl.startsWith('/')) {
+        req.session.finalUrl = req.query.redirectUrl;
+      } else {
+        req.session.finalUrl = null;
+      }
+    },
   );
 
   server.get(
@@ -67,7 +74,13 @@ function auth({ ROOT_URL, server }) {
       failureRedirect: '/login',
     }),
     (req, res) => {
-      res.redirect('/admin');
+      if (req.user && req.user.isAdmin) {
+        res.redirect('/admin');
+      } else if (req.session.finalUrl) {
+        res.redirect(req.session.finalUrl);
+      } else {
+        res.redirect('/my-books');
+      }
     },
   );
 

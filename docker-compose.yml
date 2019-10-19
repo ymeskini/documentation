@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  app-db-dev:
+    image: mongo:latest
+    container_name: app-db-dev
+    ports:
+      - "54321:54321"
+    expose:
+      - "54321"
+
+  app-service-dev:
+    container_name: app-service-dev
+    build:
+      context: ./
+      dockerfile: Dockerfile-dev
+    command: npm run dev
+    depends_on:
+      - app-db-dev
+    volumes:
+      - "./:/usr/src/app"
+      - "./package.json:/usr/src/package.json"
+    ports:
+      - "8000:8000"
+    environment:
+      MONGO_URL: "mongodb://app-db-dev:54321/SampleDB"
+      MONGO_URL_TEST: "mongodb://app-db-dev:54321/SampleDB"
+      SESSION_SECRET: "xxxxxxx"

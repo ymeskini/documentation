@@ -3,16 +3,23 @@ const session = require('express-session');
 const mongoSessionStore = require('connect-mongo');
 const next = require('next');
 const mongoose = require('mongoose');
+const compression = require('compression');
+const helmet = require('helmet');
 
 const auth = require('./google');
+const { setupGithub } = require('./github');
 const api = require('./api');
+
 const logger = require('./logs');
 const { insertTemplates } = require('./models/EmailTemplate');
+const routesWithSlug = require('./routesWithSlug');
+const getRootUrl = require('../lib/api/getRootUrl');
+const sitemapAndRobots = require('./sitemapAndRobots');
 
 require('dotenv').config();
 
 const dev = process.env.NODE_ENV !== 'production';
-const MONGO_URL = process.env.MONGO_URL_TEST;
+const MONGO_URL = dev ? process.env.MONGO_URL_TEST : process.env.MONGO_URL;
 
 const options = {
   useNewUrlParser: true,
@@ -22,10 +29,11 @@ const options = {
 mongoose.connect(MONGO_URL, options);
 
 const port = process.env.PORT || 8000;
-const ROOT_URL = `http://localhost:${port}`;
+const ROOT_URL = getRootUrl();
 
 const URL_MAP = {
   '/login': '/public/login',
+  '/my-books': '/customer/my-books',
 };
 
 const app = next({ dev });
@@ -33,6 +41,10 @@ const handle = app.getRequestHandler();
 
 app.prepare().then(async () => {
   const server = express();
+
+  server.use(helmet());
+  server.use(compression());
+  server.use(express.json());
 
   const MongoStore = mongoSessionStore(session);
   const sess = {
@@ -50,17 +62,20 @@ app.prepare().then(async () => {
     },
   };
 
+  if (!dev) {
+    server.set('trust proxy', 1); // sets req.hostname, req.ip
+    sess.cookie.secure = true; // sets cookie over HTTPS only
+  }
+
   server.use(session(sess));
 
   await insertTemplates();
 
   auth({ server, ROOT_URL });
+  setupGithub({ server });
   api(server);
-
-  server.get('/books/:bookSlug/:chapterSlug', (req, res) => {
-    const { bookSlug, chapterSlug } = req.params;
-    app.render(req, res, '/public/read-chapter', { bookSlug, chapterSlug });
-  });
+  routesWithSlug({ server, app });
+  sitemapAndRobots({ server });
 
   server.get('*', (req, res) => {
     const url = URL_MAP[req.path];

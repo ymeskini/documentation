@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
-
 const generateSlug = require('../utils/slugify');
 const sendEmail = require('../aws');
 const { getEmailTemplate } = require('./EmailTemplate');
@@ -48,11 +47,21 @@ const mongoSchema = new Schema({
   githubAccessToken: {
     type: String,
   },
+  purchasedBookIds: [String],
 });
 
 class UserClass {
   static publicFields() {
-    return ['id', 'displayName', 'email', 'avatarUrl', 'slug', 'isAdmin', 'isGithubConnected'];
+    return [
+      'id',
+      'displayName',
+      'email',
+      'avatarUrl',
+      'slug',
+      'isAdmin',
+      'isGithubConnected',
+      'purchasedBookIds',
+    ];
   }
 
   static async signInOrSignUp({ googleId, email, googleToken, displayName, avatarUrl }) {
@@ -79,7 +88,6 @@ class UserClass {
     }
 
     const slug = await generateSlug(this, displayName);
-    const userCount = await this.find().countDocuments();
 
     const newUser = await this.create({
       createdAt: new Date(),
@@ -89,7 +97,6 @@ class UserClass {
       displayName,
       avatarUrl,
       slug,
-      isAdmin: userCount === 0,
     });
 
     const template = await getEmailTemplate('welcome', {
