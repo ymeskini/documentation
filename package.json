@@ -34,7 +34,7 @@
     "htmlescape": "1.1.1",
     "isomorphic-unfetch": "^3.0.0",
     "lodash": "4.17.13",
-    "marked": "0.6.2",
+    "marked": "0.7.0",
     "mongoose": "5.6.1",
     "next": "8.1.0",
     "nprogress": "0.2.0",
